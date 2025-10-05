@@ -1,0 +1,15 @@
+const path = require('path');
+
+module.exports = {
+  // Diz ao CLI para usar nosso arquivo de configuração JS, e não mais o config.json
+  'config': path.resolve('src', 'config', 'database.js'),
+
+  // Onde encontrar (e criar) os models
+  'models-path': path.resolve('src', 'models'),
+
+  // Onde encontrar (e criar) as migrations
+  'migrations-path': path.resolve('src', 'database', 'migrations'),
+
+  // Onde encontrar (e criar) as seeders
+  'seeders-path': path.resolve('src', 'database', 'seeders')
+};
