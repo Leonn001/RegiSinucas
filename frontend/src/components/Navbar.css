@@ -1,0 +1,45 @@
+/* src/components/Navbar.css */
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-family: sans-serif;
+}
+
+.logo h1 {
+    margin: 0;
+    color: #007bff;
+}
+
+.logo span {
+    font-size: 0.8em;
+    color: #6c757d;
+}
+
+.main-nav a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: #495057;
+    font-weight: 500;
+}
+
+.main-nav a:hover {
+    color: #0056b3;
+}
+
+.user-info {
+    text-align: right;
+}
+
+.user-info span {
+    font-weight: bold;
+}
+
+.user-info small {
+    display: block;
+    color: #6c757d;
+}
