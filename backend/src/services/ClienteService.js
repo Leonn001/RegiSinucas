@@ -10,6 +10,7 @@ class ClienteService {
         const clientes = await Cliente.findAll();
         return clientes;
     }
+
     async findById(id) {
         const cliente = await Cliente.findByPk(id);
         return cliente;

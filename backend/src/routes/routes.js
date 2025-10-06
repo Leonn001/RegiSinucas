@@ -13,8 +13,8 @@ routes.patch('/mesas/:id/devolver', MesaController.devolver);
 
 // --- Rotas de Cliente ---
 routes.post('/clientes', ClienteController.store);
-// routes.get('/clientes', ClienteController.index); // vamos adicionar em breve
-// routes.get('/clientes/:id', ClienteController.show); // vamos adicionar em breve
+routes.get('/clientes', ClienteController.index);
+routes.get('/clientes/:id', ClienteController.show);
 
 // --- Rotas de Cidade ---
 routes.post('/cidades', CidadeController.store);

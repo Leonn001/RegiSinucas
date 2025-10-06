@@ -20,7 +20,7 @@ class ClienteController {
             const { id } = req.params;
             const cliente = await ClienteService.findById(id);
             if (!cliente) {
-                return res.status(404).json({ error: 'Cidade não encontrada.' });
+                return res.status(404).json({ error: 'Cliente não encontrada.' });
             }
             return res.json(cliente);
         } catch (error) { /* ...código de erro... */ }
