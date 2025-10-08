@@ -5,8 +5,8 @@ module.exports = {
             type: Sequelize.INTEGER,
             references: { model: 'distritos', key: 'id' },
             onUpdate: 'CASCADE',
-            onDelete: 'SET NULL', // Se um distrito for apagado, o cliente não é apagado, apenas perde a referência de morada.
-            allowNull: true, // Permitimos que um cliente seja cadastrado sem um distrito associado.
+            onDelete: 'SET NULL',
+            allowNull: true,
         });
     },
 

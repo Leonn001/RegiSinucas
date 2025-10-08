@@ -1,133 +1,109 @@
 // src/pages/LocalizacoesPage.js
 
 import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal'; // [1] Importamos a biblioteca do Modal
+import { Box, Button, Grid, Paper, Typography, List, ListItem, ListItemButton, ListItemText, Dialog } from '@mui/material';
 import api from '../services/api';
-import CidadeForm from '../components/CidadeForm'; // [2] Importamos nossos formulários
+import CidadeForm from '../components/CidadeForm';
 import DistritoForm from '../components/DistritoForm';
-import './LocalizacoesPage.css';
-
-Modal.setAppElement('#root'); // Configuração de acessibilidade para o Modal
 
 function LocalizacoesPage() {
     const [cidades, setCidades] = useState([]);
     const [distritos, setDistritos] = useState([]);
     const [cidadeSelecionada, setCidadeSelecionada] = useState(null);
-
-    // [3] Estados para controlar a visibilidade de cada modal
     const [modalCidadeIsOpen, setModalCidadeIsOpen] = useState(false);
     const [modalDistritoIsOpen, setModalDistritoIsOpen] = useState(false);
 
-    // ... useEffect para buscar cidades (sem alterações) ...
     useEffect(() => {
         api.get('/cidades').then(response => {
             setCidades(response.data);
         });
     }, []);
 
-    // ... useEffect para buscar distritos (sem alterações) ...
     useEffect(() => {
         if (cidadeSelecionada) {
             api.get(`/cidades/${cidadeSelecionada.id}/distritos`).then(response => {
                 setDistritos(response.data);
             });
+        } else {
+            setDistritos([]);
         }
     }, [cidadeSelecionada]);
 
     const handleCidadeClick = (cidade) => {
-        // Se a cidade que foi clicada já for a que está selecionada, não faz nada.
-        if (cidadeSelecionada && cidade.id === cidadeSelecionada.id) {
-            return; // Simplesmente sai da função
-        }
-
-        // Só se for uma cidade diferente, ele continua...
+        if (cidadeSelecionada && cidade.id === cidadeSelecionada.id) return;
         setCidadeSelecionada(cidade);
-        setDistritos([]); // Limpa a lista para dar feedback de carregamento
     };
 
-    // [4] Funções para abrir e fechar os modais
-    const abrirModalCidade = () => setModalCidadeIsOpen(true);
-    const fecharModalCidade = () => setModalCidadeIsOpen(false);
-
-    const abrirModalDistrito = () => setModalDistritoIsOpen(true);
-    const fecharModalDistrito = () => setModalDistritoIsOpen(false);
-
-    // [5] Funções de callback para quando um item é criado
     const handleCidadeCriada = (novaCidade) => {
         setCidades([...cidades, novaCidade]);
-        fecharModalCidade(); // Fecha o modal após o sucesso
+        setModalCidadeIsOpen(false);
     };
 
     const handleDistritoCriado = (novoDistrito) => {
         if (cidadeSelecionada && novoDistrito.cidade_id === cidadeSelecionada.id) {
             setDistritos([...distritos, novoDistrito]);
         }
-        fecharModalDistrito(); // Fecha o modal após o sucesso
+        setModalDistritoIsOpen(false);
     };
 
     return (
-        <div className="localizacoes-container">
-            <h2>Gestão de Localizações</h2>
-            <div className="panels-container">
-                {/* Painel da Esquerda: Cidades */}
-                <div className="panel">
-                    <div className="panel-header">
-                        <h3>Cidades</h3>
-                        {/* [6] Botão para abrir o modal de cidade */}
-                        <button onClick={abrirModalCidade} className="button-primary">+ Adicionar Cidade</button>
-                    </div>
-                    <ul className="list">
-                        {cidades.map(cidade => (
-                            <li
-                                key={cidade.id}
-                                onClick={() => handleCidadeClick(cidade)}
-                                className={cidadeSelecionada && cidade.id === cidadeSelecionada.id ? 'selected' : ''}
-                            >
-                                {cidade.nome} - {cidade.estado}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+        <Box sx={{ padding: 3, fontFamily: 'Roboto, sans-serif' }}>
+            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+                Gestão de Localizações
+            </Typography>
+            <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                    <Paper elevation={3} sx={{ padding: 2, borderRadius: 2 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                            <Typography variant="h6">Cidades</Typography>
+                            <Button variant="contained" onClick={() => setModalCidadeIsOpen(true)}>+ Adicionar Cidade</Button>
+                        </Box>
+                        <List>
+                            {cidades.map(cidade => (
+                                <ListItem key={cidade.id} disablePadding>
+                                    <ListItemButton
+                                        selected={cidadeSelecionada?.id === cidade.id}
+                                        onClick={() => handleCidadeClick(cidade)}
+                                    >
+                                        <ListItemText primary={`${cidade.nome} - ${cidade.estado}`} />
+                                    </ListItemButton>
+                                </ListItem>
+                            ))}
+                        </List>
+                    </Paper>
+                </Grid>
 
-                {/* Painel da Direita: Distritos */}
-                <div className="panel">
-                    <div className="panel-header">
-                        <h3>Distritos de {cidadeSelecionada ? cidadeSelecionada.nome : '...'}</h3>
-                        {/* [7] Botão para abrir o modal de distrito */}
-                        <button onClick={abrirModalDistrito} className="button-primary">+ Adicionar Distrito</button>
-                    </div>
-                    <ul className="list">
-                        {distritos.map(distrito => (
-                            <li key={distrito.id}>
-                                {distrito.nome}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
+                <Grid item xs={12} md={6}>
+                    <Paper elevation={3} sx={{ padding: 2, borderRadius: 2 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                            <Typography variant="h6">
+                                Distritos de {cidadeSelecionada ? cidadeSelecionada.nome : '...'}
+                            </Typography>
+                            <Button variant="contained" onClick={() => setModalDistritoIsOpen(true)} disabled={!cidadeSelecionada}>
+                                + Adicionar Distrito
+                            </Button>
+                        </Box>
+                        <List>
+                            {distritos.map(distrito => (
+                                <ListItem key={distrito.id} disablePadding>
+                                    <ListItemButton>
+                                        <ListItemText primary={distrito.nome} />
+                                    </ListItemButton>
+                                </ListItem>
+                            ))}
+                        </List>
+                    </Paper>
+                </Grid>
+            </Grid>
 
-            {/* [8] Componente Modal para Cidades (fica "invisível" até ser aberto) */}
-            <Modal
-                isOpen={modalCidadeIsOpen}
-                onRequestClose={fecharModalCidade}
-                contentLabel="Adicionar Nova Cidade"
-                className="modal"
-                overlayClassName="overlay"
-            >
-                <CidadeForm onCidadeCriada={handleCidadeCriada} fecharModal={fecharModalCidade} />
-            </Modal>
+            <Dialog open={modalCidadeIsOpen} onClose={() => setModalCidadeIsOpen(false)}>
+                <CidadeForm onCidadeCriada={handleCidadeCriada} fecharModal={() => setModalCidadeIsOpen(false)} />
+            </Dialog>
 
-            {/* [9] Componente Modal para Distritos */}
-            <Modal
-                isOpen={modalDistritoIsOpen}
-                onRequestClose={fecharModalDistrito}
-                contentLabel="Adicionar Novo Distrito"
-                className="modal"
-                overlayClassName="overlay"
-            >
-                <DistritoForm cidades={cidades} onDistritoCriado={handleDistritoCriado} fecharModal={fecharModalDistrito} />
-            </Modal>
-        </div>
+            <Dialog open={modalDistritoIsOpen} onClose={() => setModalDistritoIsOpen(false)}>
+                <DistritoForm cidades={cidades} onDistritoCriado={handleDistritoCriado} fecharModal={() => setModalDistritoIsOpen(false)} />
+            </Dialog>
+        </Box>
     );
 }
 

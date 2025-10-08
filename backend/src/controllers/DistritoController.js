@@ -1,4 +1,3 @@
-
 const DistritoService = require('../services/DistritoService');
 
 class DistritoController {

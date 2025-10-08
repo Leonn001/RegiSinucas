@@ -31,6 +31,16 @@ class MesaController {
             return res.status(404).json({ error: error.message });
         }
     }
+    async show(req, res) {
+        try {
+            const { id } = req.params;
+            const mesa = await MesaService.findById(id);
+            if (!mesa) {
+                return res.status(404).json({ error: 'Mesa não encontrada.' });
+            }
+            return res.json(mesa);
+        } catch (error) { }
+    }
 }
 
 module.exports = new MesaController();

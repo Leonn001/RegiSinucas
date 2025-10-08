@@ -15,6 +15,5 @@ app.use(routes);
 const PORT = 3001;
 
 app.listen(PORT, () => {
-    // Isso vai exibir uma mensagem no SEU terminal para você saber que tudo deu certo.
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });

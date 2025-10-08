@@ -1,31 +1,33 @@
 // src/components/Navbar.js
 
 import React from 'react';
-import { Link } from 'react-router-dom'; // Importamos o componente Link para navegação
-import './Navbar.css'; // Vamos criar este ficheiro para estilizar a nossa barra
+import { Link } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 
 function Navbar() {
     return (
-        <header className="app-header">
-            <div className="logo">
-                {/* Você pode colocar um ícone aqui depois */}
-                <h1>RegiSinucas</h1>
-                <span>Sistema de Gestão</span>
-            </div>
+        <AppBar position="static" color="default" elevation={1}>
+            <Toolbar>
+                <Typography variant="h6" color="#007bff" noWrap sx={{ flexGrow: 1 }}>
+                    RegiSinucas
+                </Typography>
 
-            <nav className="main-nav">
-                <Link to="/dashboard">Dashboard</Link>
-                <Link to="/mesas">Mesas</Link>
-                <Link to="/clientes">Clientes</Link>
-                <Link to="/localizacoes">Localizações</Link>
-                <Link to="/relatorios">Relatórios</Link>
-            </nav>
+                <Box>
+                    <Button component={Link} to="/dashboard" color="inherit">Dashboard</Button>
+                    <Button component={Link} to="/mesas" color="inherit">Mesas</Button>
+                    <Button component={Link} to="/clientes" color="inherit">Clientes</Button>
+                    <Button component={Link} to="/localizacoes" color="inherit">Localizações</Button>
+                    <Button component={Link} to="/relatorios" color="inherit">Relatórios</Button>
+                </Box>
 
-            <div className="user-info">
-                <span>Administrador</span>
-                <small>Gestão de Sinucas</small>
-            </div>
-        </header>
+                <Box sx={{ flexGrow: 1 }} />
+                <Box sx={{ textAlign: 'right' }}>
+                    <Typography variant="subtitle1">Administrador</Typography>
+                    <Typography variant="body2" color="textSecondary">Gestão de Sinucas</Typography>
+                </Box>
+
+            </Toolbar>
+        </AppBar>
     );
 }
 

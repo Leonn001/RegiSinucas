@@ -1,6 +1,5 @@
 /* src/index.css */
 
-/* Define uma fonte mais limpa para toda a aplicação */
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -11,7 +10,6 @@ body {
     background-color: #f4f7f9;
 }
 
-/* Estilo base para todos os botões */
 button {
     padding: 8px 16px;
     border: none;
@@ -22,7 +20,6 @@ button {
     transition: background-color 0.2s ease-in-out;
 }
 
-/* Estilo para botões primários (Salvar, Adicionar) */
 .button-primary {
     background-color: #007bff;
     color: white;
@@ -31,7 +28,6 @@ button {
     background-color: #0056b3;
 }
 
-/* Estilo para botões secundários (Cancelar) */
 .button-secondary {
     background-color: #e9ecef;
     color: #495057;
@@ -41,7 +37,6 @@ button {
 }
 
 
-/* Estilo base para inputs e selects */
 input[type="text"], select {
     width: 100%;
     padding: 10px;
@@ -49,7 +44,7 @@ input[type="text"], select {
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-sizing: border-box; /* Garante que o padding não aumente a largura total */
+    box-sizing: border-box;
 }
 
 label {

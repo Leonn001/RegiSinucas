@@ -13,7 +13,7 @@ class CidadeController {
         try {
             const cidades = await CidadeService.findAll();
             return res.json(cidades);
-        } catch (error) { /* ...código de erro... */ }
+        } catch (error) {}
     }
     async show(req, res) {
         try {
@@ -23,7 +23,7 @@ class CidadeController {
                 return res.status(404).json({ error: 'Cidade não encontrada.' });
             }
             return res.json(cidade);
-        } catch (error) { /* ...código de erro... */ }
+        } catch (error) { }
     }
 }
 module.exports = new CidadeController();

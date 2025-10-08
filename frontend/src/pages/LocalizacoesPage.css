@@ -7,11 +7,11 @@
 
 .panels-container {
     display: flex;
-    gap: 20px; /* Espaço entre os painéis */
+    gap: 20px;
 }
 
 .panel {
-    flex: 1; /* Faz com que os dois painéis dividam o espaço igualmente */
+    flex: 1;
     border: 1px solid #ccc;
     border-radius: 8px;
     padding: 15px;
@@ -71,16 +71,14 @@
     margin-top: 20px;
 }
 
-/* src/pages/LocalizacoesPage.css */
 
 .panel-header {
-    display: flex; /* Ativa o modo Flexbox */
-    justify-content: space-between; /* Empurra os itens para as extremidades */
-    align-items: center; /* Alinha os itens verticalmente ao centro */
-    margin-bottom: 15px; /* Adiciona um espaço abaixo do cabeçalho */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
-/* Vamos aproveitar para remover a margem padrão do h3 */
 .panel-header h3 {
     margin: 0;
 }

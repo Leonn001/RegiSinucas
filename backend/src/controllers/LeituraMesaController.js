@@ -9,6 +9,13 @@ class LeituraMesaController {
             return res.status(400).json({ error: error.message });
         }
     }
+    async indexByMesa(req, res) {
+        try {
+            const { mesaId } = req.params;
+            const leituras = await LeituraMesaService.findByMesaId(mesaId);
+            return res.json(leituras);
+        } catch (error) { /* ...código de erro... */ }
+    }
 }
 
 module.exports = new LeituraMesaController();

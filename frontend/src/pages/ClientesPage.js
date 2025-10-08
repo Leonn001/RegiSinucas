@@ -1,25 +1,21 @@
-// src/pages/ClientesPage.js (VERSÃO FINAL COM MODAL)
+// src/pages/ClientesPage.js
 
 import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal'; // [NOVO] Importamos a biblioteca do Modal
+import { Box, Button, Paper, Typography, Dialog, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import api from '../services/api';
-import ClienteForm from '../components/ClienteForm'; // [NOVO] Importamos o nosso formulário
-
-Modal.setAppElement('#root'); // [NOVO] Configuração de acessibilidade
+import ClienteForm from '../components/ClienteForm';
 
 function ClientesPage() {
     const [clientes, setClientes] = useState([]);
     const [cidades, setCidades] = useState([]);
-    const [distritos, setDistritos] = useState([]); // [NOVO] O form precisa da lista completa de distritos
-
-    const [modalIsOpen, setModalIsOpen] = useState(false); // [NOVO] Estado para controlar o modal
+    const [distritos, setDistritos] = useState([]);
+    const [modalIsOpen, setModalIsOpen] = useState(false);
 
     useEffect(() => {
-        // Usamos Promise.all para carregar tudo o que a página precisa
         Promise.all([
             api.get('/clientes'),
             api.get('/cidades'),
-            api.get('/distritos') // [NOVO] Buscamos os distritos para o formulário
+            api.get('/distritos'),
         ]).then(([clientesResponse, cidadesResponse, distritosResponse]) => {
             setClientes(clientesResponse.data);
             setCidades(cidadesResponse.data);
@@ -29,71 +25,63 @@ function ClientesPage() {
         });
     }, []);
 
-    // [NOVO] Funções para controlar o modal
-    const abrirModal = () => setModalIsOpen(true);
-    const fecharModal = () => setModalIsOpen(false);
-
-    // [ALTERADO] Função de callback atualizada
-    const handleClienteCriado = (novoCliente) => {
-        // Para ter os dados completos (com distrito e cidade), o melhor é recarregar a lista
+    const handleClienteCriado = () => {
         api.get('/clientes').then(response => setClientes(response.data));
-        fecharModal(); // Fecha o modal após o sucesso
     };
 
-    // Função "ajudante" para encontrar os nomes das localizações
     const getLocationNames = (distritoId) => {
-        if (!distritoId || distritos.length === 0 || cidades.length === 0) return 'Não informado';
+        if (!distritoId || distritos.length === 0 || cidades.length === 0) {
+            return 'Não informado';
+        }
         const distrito = distritos.find(d => d.id === distritoId);
-        if (!distrito) return 'Distrito não encontrado';
+        if (!distrito) {
+            return 'Distrito Inválido';
+        }
         const cidade = cidades.find(c => c.id === distrito.cidade_id);
-        return distrito && cidade ? `${distrito.nome} - ${cidade.nome}` : 'Carregando...';
+        return cidade ? `${distrito.nome} - ${cidade.nome}` : distrito.nome;
     };
 
     return (
-        <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2>Gestão de Clientes</h2>
-                {/* [ALTERADO] O botão agora abre o modal */}
-                <button onClick={abrirModal} className="button-primary">+ Adicionar Cliente</button>
-            </div>
+        <Box sx={{ padding: 3, fontFamily: 'Roboto, sans-serif' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+                    Gestão de Clientes
+                </Typography>
+                <Button variant="contained" onClick={() => setModalIsOpen(true)}>+ Adicionar Cliente</Button>
+            </Box>
 
-            <hr />
+            <Paper elevation={3} sx={{ borderRadius: 2 }}>
+                <TableContainer>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell sx={{ fontWeight: 'bold' }}>Nome</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold' }}>Telefone</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold' }}>Localização</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {clientes.map(cliente => (
+                                <TableRow key={cliente.id} hover>
+                                    <TableCell>{cliente.nome}</TableCell>
+                                    <TableCell>{cliente.telefone}</TableCell>
+                                    {/* 4. USAMOS O NOSSO "TRADUTOR" AQUI */}
+                                    <TableCell>{getLocationNames(cliente.distrito_id)}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Paper>
 
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                <tr style={{ borderBottom: '2px solid #ccc' }}>
-                    <th style={{ textAlign: 'center', padding: '8px' }}>Nome</th>
-                    <th style={{ textAlign: 'center', padding: '8px' }}>Telefone</th>
-                    <th style={{ textAlign: 'center', padding: '8px' }}>Localização</th>
-                </tr>
-                </thead>
-                <tbody>
-                {clientes.map(cliente => (
-                    <tr key={cliente.id} style={{ borderBottom: '1.5px solid #eee' }}>
-                        <td style={{ padding: '8px' }}>{cliente.nome}</td>
-                        <td style={{ padding: '8px' }}>{cliente.telefone}</td>
-                        <td style={{ padding: '8px' }}>
-                            {getLocationNames(cliente.distrito_id)}
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-
-            <Modal
-                isOpen={modalIsOpen}
-                onRequestClose={fecharModal}
-                contentLabel="Adicionar Novo Cliente"
-                className="modal"
-                overlayClassName="overlay"
-            >
+            <Dialog open={modalIsOpen} onClose={() => setModalIsOpen(false)}>
                 <ClienteForm
-                    cidades={cidades} // Passamos a lista de cidades para o form
+                    cidades={cidades}
                     onClienteCriado={handleClienteCriado}
-                    fecharModal={fecharModal}
+                    fecharModal={() => setModalIsOpen(false)}
                 />
-            </Modal>
-        </div>
+            </Dialog>
+        </Box>
     );
 }
 

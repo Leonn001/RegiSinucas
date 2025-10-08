@@ -22,7 +22,6 @@ module.exports = (sequelize, DataTypes) => {
     longitude: DataTypes.DECIMAL,
     valor_ficha_padrao: DataTypes.DECIMAL,
     contador_ultima_leitura: DataTypes.INTEGER,
-    contador_leitura_atual: DataTypes.INTEGER,
     precisa_manutencao: DataTypes.BOOLEAN,
     descricao_manutencao: DataTypes.TEXT,
     url_foto_atual: DataTypes.STRING,

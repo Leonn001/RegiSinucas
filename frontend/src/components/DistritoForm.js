@@ -1,47 +1,58 @@
+// src/components/DistritoForm.js
+
 import React, { useState } from 'react';
 import api from '../services/api';
+import { TextField, Button, DialogActions, DialogContent, DialogTitle, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 
-function DistritoForm({ cidades, onDistritoCriado }) {
+function DistritoForm({ cidades, onDistritoCriado, fecharModal }) {
     const [nome, setNome] = useState('');
     const [cidadeId, setCidadeId] = useState('');
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        if (!nome || !cidadeId) {
-            alert('Por favor, selecione uma cidade e preencha o nome do distrito.');
-            return;
-        }
+        if (!nome || !cidadeId) return alert('Preencha todos os campos!');
         try {
             const response = await api.post('/distritos', { nome, cidade_id: cidadeId });
             onDistritoCriado(response.data);
-            setNome('');
-        } catch (error) {
-            console.error('Erro ao criar distrito:', error);
-            alert('Não foi possível cadastrar o distrito.');
-        }
+            fecharModal();
+        } catch (error) {  }
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
-            <h4>Cadastrar Novo Distrito/Povoado</h4>
-            <select
-                value={cidadeId}
-                onChange={e => setCidadeId(e.target.value)}
-            >
-                <option value="">Selecione uma Cidade</option>
-                {cidades.map(cidade => (
-                    <option key={cidade.id} value={cidade.id}>
-                        {cidade.nome}
-                    </option>
-                ))}
-            </select>
-            <input
-                type="text"
-                placeholder="Nome do Distrito (ou 'Sede')"
-                value={nome}
-                onChange={e => setNome(e.target.value)}
-            />
-            <button type="submit " className="button-primary">Salvar Distrito</button>
+        <form onSubmit={handleSubmit}>
+            <DialogTitle>Adicionar Novo Distrito</DialogTitle>
+            <DialogContent>
+                <FormControl fullWidth variant="standard" sx={{ mt: 2, mb: 1 }}>
+                    <InputLabel id="cidade-select-label">Cidade</InputLabel>
+                    <Select
+                        labelId="cidade-select-label"
+                        id="cidade-select"
+                        value={cidadeId}
+                        onChange={e => setCidadeId(e.target.value)}
+                        label="Cidade"
+                    >
+                        <MenuItem value=""><em>Selecione uma Cidade</em></MenuItem>
+                        {cidades.map(cidade => (
+                            <MenuItem key={cidade.id} value={cidade.id}>{cidade.nome}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id="nome"
+                    label="Nome do Distrito (ou 'Sede')"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    value={nome}
+                    onChange={e => setNome(e.target.value)}
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={fecharModal}>Cancelar</Button>
+                <Button type="submit" variant="contained">Adicionar</Button>
+            </DialogActions>
         </form>
     );
 }

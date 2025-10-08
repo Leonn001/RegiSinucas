@@ -13,7 +13,7 @@ class ClienteController {
         try {
             const clientes = await ClienteService.findAll();
             return res.json(clientes);
-        } catch (error) { /* ...código de erro... */ }
+        } catch (error) { }
     }
     async show(req, res) {
         try {
@@ -23,7 +23,7 @@ class ClienteController {
                 return res.status(404).json({ error: 'Cliente não encontrada.' });
             }
             return res.json(cliente);
-        } catch (error) { /* ...código de erro... */ }
+        } catch (error) { }
     }
 }
 

@@ -35,6 +35,10 @@ class MesaService {
 
         return mesa;
     }
+    async findById(id) {
+        const mesa = await Mesa.findByPk(id);
+        return mesa;
+    }
 }
 
 module.exports = new MesaService();
