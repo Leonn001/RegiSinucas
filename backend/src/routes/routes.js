@@ -4,6 +4,7 @@ const CidadeController = require('../controllers/CidadeController');
 const DistritoController = require('../controllers/DistritoController');
 const ClienteController = require('../controllers/ClienteController');
 const LeituraMesaController = require('../controllers/LeituraMesaController');
+const DashboardController = require('../controllers/DashboardController');
 
 const routes = new Router();
 
@@ -32,5 +33,8 @@ routes.get('/distritos/:id', DistritoController.show);
 // --- Rotas de Leitura de Mesa ---
 routes.post('/leituras', LeituraMesaController.store);
 routes.get('/mesas/:mesaId/leituras', LeituraMesaController.indexByMesa);
+
+// --- Rotas de Dashboard ---
+routes.get('/dashboard', DashboardController.index);
 
 module.exports = routes;

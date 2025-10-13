@@ -1,14 +1,8 @@
-const { LeituraMesa,Mesa } = require('../database/index').connection.models;
+const { LeituraMesa, Mesa, Cliente, Distrito, Cidade } = require('../database/index').connection.models;
 
 class LeituraMesaService {
     async create(leituraData) {
-        const {
-            mesa_id,
-            contador_atual_na_visita,
-            desconto_fichas = 0,
-            valor_pago = 0,
-            data_leitura
-        } = leituraData;
+        const { mesa_id, contador_atual_na_visita, desconto_fichas = 0, valor_pago = 0, data_leitura } = leituraData;
 
         const mesa = await Mesa.findByPk(mesa_id);
         if (!mesa) throw new Error('Mesa não encontrada.');
@@ -22,7 +16,9 @@ class LeituraMesaService {
         const valor_cobrado = valor_total_apurado / 2;
         const divida_restante = valor_cobrado - parseFloat(valor_pago);
 
-        let status_pagamento = divida_restante <= 0 ? 'Pago Integralmente' : (valor_pago > 0 ? 'Pagamento Parcial' : 'Aguardando Pagamento');
+        let status_pagamento = divida_restante <= 0
+            ? 'Pago Integralmente'
+            : (valor_pago > 0 ? 'Pagamento Parcial' : 'Aguardando Pagamento');
 
         const leitura = await LeituraMesa.create({
             data_leitura: data_leitura || new Date(),
@@ -46,8 +42,27 @@ class LeituraMesaService {
     async findByMesaId(mesaId) {
         const leituras = await LeituraMesa.findAll({
             where: { mesa_id: mesaId },
-            order: [['data_leitura', 'DESC']]
+            order: [['data_leitura', 'DESC']],
+            include: [
+                {
+                    model: Mesa,
+                    as: 'mesa',
+                    attributes: ['id', 'numero_serie', 'nome_ponto_comercial', 'valor_ficha_padrao', 'contador_ultima_leitura'],
+                    include: [
+                        { model: Cliente, as: 'cliente', attributes: ['id', 'nome'] },
+                        {
+                            model: Distrito,
+                            as: 'distrito',
+                            attributes: ['id', 'nome'],
+                            include: [
+                                { model: Cidade, as: 'cidade', attributes: ['id', 'nome', 'estado'] }
+                            ]
+                        }
+                    ]
+                }
+            ]
         });
+
         return leituras;
     }
 }

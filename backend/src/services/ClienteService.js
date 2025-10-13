@@ -1,4 +1,4 @@
-const { Cliente } = require('../database/index').connection.models;
+const { Cliente, Distrito, Cidade } = require('../database/index').connection.models;
 
 class ClienteService {
     async create(clienteData) {
@@ -7,12 +7,34 @@ class ClienteService {
     }
 
     async findAll() {
-        const clientes = await Cliente.findAll();
+        const clientes = await Cliente.findAll({
+            include: [{
+                model: Distrito,
+                as: 'distrito',
+                attributes: ['id', 'nome'],
+                include: [{
+                    model: Cidade,
+                    as: 'cidade',
+                    attributes: ['id', 'nome']
+                }]
+            }]
+        });
         return clientes;
     }
 
     async findById(id) {
-        const cliente = await Cliente.findByPk(id);
+        const cliente = await Cliente.findByPk(id, {
+            include: [{
+                model: Distrito,
+                as: 'distrito',
+                attributes: ['id', 'nome'],
+                include: [{
+                    model: Cidade,
+                    as: 'cidade',
+                    attributes: ['id', 'nome']
+                }]
+            }]
+        });
         return cliente;
     }
 }

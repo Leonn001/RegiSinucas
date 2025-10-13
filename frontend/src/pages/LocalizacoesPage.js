@@ -1,14 +1,14 @@
 // src/pages/LocalizacoesPage.js
-
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Grid, Paper, Typography, List, ListItem, ListItemButton, ListItemText, Dialog } from '@mui/material';
+import {
+    Box, Button, Grid, Paper, Typography, List, ListItem, ListItemButton, ListItemText, Dialog
+} from '@mui/material';
 import api from '../services/api';
 import CidadeForm from '../components/CidadeForm';
 import DistritoForm from '../components/DistritoForm';
 
 function LocalizacoesPage() {
     const [cidades, setCidades] = useState([]);
-    const [distritos, setDistritos] = useState([]);
     const [cidadeSelecionada, setCidadeSelecionada] = useState(null);
     const [modalCidadeIsOpen, setModalCidadeIsOpen] = useState(false);
     const [modalDistritoIsOpen, setModalDistritoIsOpen] = useState(false);
@@ -16,18 +16,10 @@ function LocalizacoesPage() {
     useEffect(() => {
         api.get('/cidades').then(response => {
             setCidades(response.data);
+        }).catch(error => {
+            console.error("Erro ao buscar cidades:", error);
         });
     }, []);
-
-    useEffect(() => {
-        if (cidadeSelecionada) {
-            api.get(`/cidades/${cidadeSelecionada.id}/distritos`).then(response => {
-                setDistritos(response.data);
-            });
-        } else {
-            setDistritos([]);
-        }
-    }, [cidadeSelecionada]);
 
     const handleCidadeClick = (cidade) => {
         if (cidadeSelecionada && cidade.id === cidadeSelecionada.id) return;
@@ -40,9 +32,19 @@ function LocalizacoesPage() {
     };
 
     const handleDistritoCriado = (novoDistrito) => {
-        if (cidadeSelecionada && novoDistrito.cidade_id === cidadeSelecionada.id) {
-            setDistritos([...distritos, novoDistrito]);
-        }
+        if (!cidadeSelecionada) return;
+
+        setCidadeSelecionada(prev => ({
+            ...prev,
+            distritos: [...(prev.distritos || []), novoDistrito]
+        }));
+
+        setCidades(prevCidades => prevCidades.map(c =>
+            c.id === cidadeSelecionada.id
+                ? { ...c, distritos: [...(c.distritos || []), novoDistrito] }
+                : c
+        ));
+
         setModalDistritoIsOpen(false);
     };
 
@@ -51,6 +53,7 @@ function LocalizacoesPage() {
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
                 Gestão de Localizações
             </Typography>
+
             <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
                     <Paper elevation={3} sx={{ padding: 2, borderRadius: 2 }}>
@@ -58,6 +61,7 @@ function LocalizacoesPage() {
                             <Typography variant="h6">Cidades</Typography>
                             <Button variant="contained" onClick={() => setModalCidadeIsOpen(true)}>+ Adicionar Cidade</Button>
                         </Box>
+
                         <List>
                             {cidades.map(cidade => (
                                 <ListItem key={cidade.id} disablePadding>
@@ -73,24 +77,39 @@ function LocalizacoesPage() {
                     </Paper>
                 </Grid>
 
+                {/* Lista de Distritos */}
                 <Grid item xs={12} md={6}>
                     <Paper elevation={3} sx={{ padding: 2, borderRadius: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                             <Typography variant="h6">
                                 Distritos de {cidadeSelecionada ? cidadeSelecionada.nome : '...'}
                             </Typography>
-                            <Button variant="contained" onClick={() => setModalDistritoIsOpen(true)} disabled={!cidadeSelecionada}>
+                            <Button
+                                variant="contained"
+                                onClick={() => setModalDistritoIsOpen(true)}
+                                disabled={!cidadeSelecionada}
+                            >
                                 + Adicionar Distrito
                             </Button>
                         </Box>
+
                         <List>
-                            {distritos.map(distrito => (
-                                <ListItem key={distrito.id} disablePadding>
-                                    <ListItemButton>
-                                        <ListItemText primary={distrito.nome} />
-                                    </ListItemButton>
+                            {cidadeSelecionada?.distritos?.length > 0 ? (
+                                cidadeSelecionada.distritos.map(distrito => (
+                                    <ListItem key={distrito.id} disablePadding>
+                                        <ListItemButton>
+                                            <ListItemText primary={distrito.nome} />
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))
+                            ) : (
+                                <ListItem disablePadding>
+                                    <ListItemText
+                                        primary={cidadeSelecionada ? 'Nenhum distrito cadastrado' : 'Selecione uma cidade'}
+                                        sx={{ color: 'text.secondary', pl: 2 }}
+                                    />
                                 </ListItem>
-                            ))}
+                            )}
                         </List>
                     </Paper>
                 </Grid>
@@ -101,7 +120,11 @@ function LocalizacoesPage() {
             </Dialog>
 
             <Dialog open={modalDistritoIsOpen} onClose={() => setModalDistritoIsOpen(false)}>
-                <DistritoForm cidades={cidades} onDistritoCriado={handleDistritoCriado} fecharModal={() => setModalDistritoIsOpen(false)} />
+                <DistritoForm
+                    cidades={cidades}
+                    onDistritoCriado={handleDistritoCriado}
+                    fecharModal={() => setModalDistritoIsOpen(false)}
+                />
             </Dialog>
         </Box>
     );
