@@ -1,25 +1,34 @@
 // src/pages/MesaDetailPage.js
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { Box, Button, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, TextField, Divider } from '@mui/material';
+
+import { Box, Button, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, TextField } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+const getTodayDateString = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
 function MesaDetailPage() {
     const { mesaId } = useParams();
     const navigate = useNavigate();
 
-    const [mesa, setMesa] = React.useState(null);
-    const [historico, setHistorico] = React.useState([]);
-    const [clientes, setClientes] = React.useState([]);
-    const [distritos, setDistritos] = React.useState([]);
-    const [cidades, setCidades] = React.useState([]);
+    const [mesa, setMesa] = useState(null);
+    const [historico, setHistorico] = useState([]);
+    const [clientes, setClientes] = useState([]);
+    const [distritos, setDistritos] = useState([]);
+    const [cidades, setCidades] = useState([]);
 
-    const [contadorAtual, setContadorAtual] = React.useState('');
-    const [pagamentoDinheiro, setPagamentoDinheiro] = React.useState('');
-    const [pagamentoPix, setPagamentoPix] = React.useState('');
-    const [desconto, setDesconto] = React.useState('');
+    const [contadorAtual, setContadorAtual] = useState('');
+    const [descontoFichas, setDescontoFichas] = useState('');
+    const [valorPago, setValorPago] = useState('');
+    const [dataLeitura, setDataLeitura] = useState(getTodayDateString());
 
     const fetchData = () => {
         Promise.all([
@@ -39,31 +48,30 @@ function MesaDetailPage() {
         });
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         fetchData();
     }, [mesaId]);
 
-    // Função para salvar a nova leitura
     const handleSalvarLeitura = async () => {
-        if (!contadorAtual) {
-            return alert('Por favor, insira o valor do contador atual.');
+        if (!contadorAtual || parseInt(contadorAtual) < mesa.contador_ultima_leitura) {
+            return alert('O contador atual deve ser um número válido e maior que o último contador.');
         }
 
         const dadosLeitura = {
             mesa_id: parseInt(mesaId),
             contador_atual_na_visita: parseInt(contadorAtual),
-            valor_pago_dinheiro: parseFloat(pagamentoDinheiro || 0),
-            valor_pago_pix: parseFloat(pagamentoPix || 0),
-            desconto_fichas: parseInt(desconto || 0),
+            desconto_fichas: parseInt(descontoFichas || 0),
+            valor_pago: parseFloat(valorPago || 0),
+            data_leitura: dataLeitura,
         };
 
         try {
             await api.post('/leituras', dadosLeitura);
             alert('Leitura salva com sucesso!');
             setContadorAtual('');
-            setPagamentoDinheiro('');
-            setPagamentoPix('');
-            setDesconto('');
+            setDescontoFichas('');
+            setValorPago('');
+            setDataLeitura(getTodayDateString());
             fetchData();
         } catch (error) {
             alert('Erro ao salvar leitura: ' + (error.response?.data?.error || error.message));
@@ -80,10 +88,11 @@ function MesaDetailPage() {
 
     return (
         <Box sx={{ padding: 3 }}>
-            <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/mesas')} sx={{ mb: 2 }}>
-                Voltar para a lista
-            </Button>
-
+            <Box sx={{ display: 'flex', justifyContent: 'flex-start'}}>
+                <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/mesas')} sx={{ mb: 2 }}>
+                    Voltar para a lista
+                </Button>
+            </Box>
             <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, mb: 4 }}>
                 <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>{mesa.numero_serie}</Typography>
                 <Grid container spacing={2}>
@@ -101,20 +110,23 @@ function MesaDetailPage() {
             <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, mb: 4 }}>
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>Registrar Leitura do Mês</Typography>
                 <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} sm={3}>
+                    <Grid item xs={12} sm={2}>
+                        <TextField label="Data da Leitura" type="date" value={dataLeitura} onChange={e => setDataLeitura(e.target.value)} fullWidth InputLabelProps={{ shrink: true }} />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
                         <TextField label="Último Contador" value={mesa.contador_ultima_leitura} disabled fullWidth />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
+                    <Grid item xs={12} sm={2}>
                         <TextField label="Contador Atual" type="number" value={contadorAtual} onChange={e => setContadorAtual(e.target.value)} fullWidth autoFocus />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
-                        <TextField label="Desconto (em FICHAS)" type="number" value={desconto} onChange={e => setDesconto(e.target.value)} fullWidth />
+                    <Grid item xs={12} sm={2}>
+                        <TextField label="Desconto (FICHAS)" type="number" value={descontoFichas} onChange={e => setDescontoFichas(e.target.value)} fullWidth />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
-                        <TextField label="Pago" type="number" value={pagamentoDinheiro} onChange={e => setPagamentoDinheiro(e.target.value)} fullWidth />
+                    <Grid item xs={12} sm={2}>
+                        <TextField label="Valor Pago (R$)" type="number" value={valorPago} onChange={e => setValorPago(e.target.value)} fullWidth />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
-                        <Button variant="contained" size="large" onClick={handleSalvarLeitura} fullWidth>Salvar Leitura</Button>
+                    <Grid item xs={12} sm={2}>
+                        <Button variant="contained" size="large" onClick={handleSalvarLeitura} fullWidth sx={{ height: '100%' }}>Salvar Leitura</Button>
                     </Grid>
                 </Grid>
             </Paper>
@@ -131,6 +143,7 @@ function MesaDetailPage() {
                                 <TableCell>Fichas Brutas</TableCell>
                                 <TableCell>Desc. Fichas</TableCell>
                                 <TableCell>Valor Cobrado</TableCell>
+                                <TableCell>Valor Pago</TableCell>
                                 <TableCell>Dívida Restante</TableCell>
                             </TableRow>
                         </TableHead>
@@ -142,7 +155,8 @@ function MesaDetailPage() {
                                     <TableCell>{leitura.contador_atual_na_visita}</TableCell>
                                     <TableCell>{leitura.fichas_brutas}</TableCell>
                                     <TableCell>{leitura.desconto_fichas}</TableCell>
-                                    <TableCell>R$ {parseFloat(leitura.valor_cobrado_empresa).toFixed(2)}</TableCell>
+                                    <TableCell>R$ {parseFloat(leitura.valor_cobrado).toFixed(2)}</TableCell>
+                                    <TableCell>R$ {parseFloat(leitura.valor_pago).toFixed(2)}</TableCell>
                                     <TableCell sx={{ color: parseFloat(leitura.divida_restante) > 0 ? 'error.main' : 'success.main', fontWeight: 'bold' }}>
                                         R$ {parseFloat(leitura.divida_restante).toFixed(2)}
                                     </TableCell>
