@@ -1,8 +1,15 @@
 const { LeituraMesa, Mesa, Cliente, Distrito, Cidade } = require('../database/index').connection.models;
+const { parseISO } = require('date-fns');
 
 class LeituraMesaService {
     async create(leituraData) {
-        const { mesa_id, contador_atual_na_visita, desconto_fichas = 0, valor_pago = 0, data_leitura } = leituraData;
+        const {
+            mesa_id,
+            contador_atual_na_visita,
+            desconto_fichas = 0,
+            valor_pago = 0,
+            data_leitura
+        } = leituraData;
 
         const mesa = await Mesa.findByPk(mesa_id);
         if (!mesa) throw new Error('Mesa não encontrada.');
@@ -16,12 +23,12 @@ class LeituraMesaService {
         const valor_cobrado = valor_total_apurado / 2;
         const divida_restante = valor_cobrado - parseFloat(valor_pago);
 
-        let status_pagamento = divida_restante <= 0
-            ? 'Pago Integralmente'
-            : (valor_pago > 0 ? 'Pagamento Parcial' : 'Aguardando Pagamento');
+        let status_pagamento = divida_restante <= 0 ? 'Pago Integralmente' : (valor_pago > 0 ? 'Pagamento Parcial' : 'Aguardando Pagamento');
+
+        const dataCorreta = data_leitura ? parseISO(data_leitura) : new Date();
 
         const leitura = await LeituraMesa.create({
-            data_leitura: data_leitura || new Date(),
+            data_leitura: dataCorreta,
             contador_anterior: mesa.contador_ultima_leitura,
             contador_atual_na_visita,
             fichas_brutas,

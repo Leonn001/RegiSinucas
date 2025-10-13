@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-
+import { format, parseISO } from 'date-fns';
 import { Box, Button, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, TextField } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -150,7 +150,7 @@ function MesaDetailPage() {
                         <TableBody>
                             {historico.map(leitura => (
                                 <TableRow key={leitura.id} hover>
-                                    <TableCell>{new Date(leitura.data_leitura).toLocaleDateString('pt-BR')}</TableCell>
+                                    <TableCell>{format(parseISO(leitura.data_leitura), 'dd/MM/yyyy')}</TableCell>
                                     <TableCell>{leitura.contador_anterior}</TableCell>
                                     <TableCell>{leitura.contador_atual_na_visita}</TableCell>
                                     <TableCell>{leitura.fichas_brutas}</TableCell>

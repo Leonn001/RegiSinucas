@@ -53,7 +53,7 @@ function DashboardPage() {
             </Grid>
 
             <Grid container spacing={3}>
-                <Grid item xs={12} md={8}>
+                <Grid item xs={12} md={8} width="100%">
                     <Paper elevation={3} sx={{ p: 2, borderRadius: 2, height: 400 }}>
                         <Typography variant="h6" sx={{ mb: 2 }}>Lucro por Cidade</Typography>
                         <ResponsiveContainer width="100%" height="90%">
