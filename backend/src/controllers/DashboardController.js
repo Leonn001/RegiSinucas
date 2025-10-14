@@ -5,14 +5,17 @@ const DashboardService = require('../services/DashboardService');
 class DashboardController {
     async index(req, res) {
         try {
-            // Usamos Promise.all para buscar todos os dados do dashboard em paralelo
+            const ano = req.query.ano ? parseInt(req.query.ano) : undefined;
+            const mes = req.query.mes ? parseInt(req.query.mes) : undefined;
+
             const [kpis, lucroPorCidade] = await Promise.all([
                 DashboardService.getKpis(),
-                DashboardService.getLucroPorCidade(),
+                DashboardService.getLucroPorCidade({ ano, mes }),
             ]);
 
             return res.json({ kpis, lucroPorCidade });
         } catch (error) {
+            console.error('Erro no DashboardController:', error);
             return res.status(500).json({ error: error.message });
         }
     }

@@ -2,7 +2,7 @@
 'use strict';
 const database = require('../database/index');
 const { Mesa, LeituraMesa, Cidade, Distrito, Cliente  } = require('../database/index').connection.models;
-const { QueryTypes } = require('sequelize');
+const { QueryTypes, where, Op} = require('sequelize');
 const { fn, col } = require('sequelize');
 
 class DashboardService {
@@ -16,27 +16,49 @@ class DashboardService {
         return { totalMesas, mesasAtivas, mesasInativas, manutencoesPendentes };
     }
 
-    async getLucroPorCidade() {
+    async getLucroPorCidade({ ano, mes } = {}) {
+        const whereClause = {};
+
+        if (ano) {
+            whereClause[Op.and] = [
+                where(fn('EXTRACT', fn('YEAR FROM', col('LeituraMesa.data_leitura'))), ano)
+            ];
+        }
+
+        if (mes) {
+            whereClause[Op.and] = [
+                ...(whereClause[Op.and] || []),
+                where(fn('EXTRACT', fn('MONTH FROM', col('LeituraMesa.data_leitura'))), mes)
+            ];
+        }
+
         const resultado = await LeituraMesa.findAll({
             attributes: [
                 [fn('SUM', col('valor_cobrado')), 'Lucro'],
                 [col('mesa->distrito->cidade.nome'), 'name'],
             ],
-            include: [{
-                model: Mesa,
-                as: 'mesa',
-                attributes: [],
-                include: [{
-                    model: Distrito,
-                    as: 'distrito',
+            include: [
+                {
+                    model: Mesa,
+                    as: 'mesa',
                     attributes: [],
-                    include: [{
-                        model: Cidade,
-                        as: 'cidade',
-                        attributes: [],
-                    }]
-                }]
-            }],
+                    include: [
+                        {
+                            model: Distrito,
+                            as: 'distrito',
+                            attributes: [],
+                            include: [
+                                {
+                                    model: Cidade,
+                                    as: 'cidade',
+                                    attributes: [],
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            where: whereClause,
             group: ['mesa->distrito->cidade.nome'],
             order: [[fn('SUM', col('valor_cobrado')), 'DESC']],
             raw: true,
@@ -44,7 +66,7 @@ class DashboardService {
 
         return resultado.map(item => ({
             name: item.name,
-            Lucro: parseFloat(item.Lucro)
+            Lucro: parseFloat(item.Lucro),
         }));
     }
 
