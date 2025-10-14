@@ -19,6 +19,17 @@ class DashboardController {
             return res.status(500).json({ error: error.message });
         }
     }
+
+    async lucroPorDistrito(req, res) {
+        try {
+            const { cidade, ano, mes } = req.query;
+            const resultado = await DashboardService.getLucroPorDistrito({ cidade, ano, mes });
+            return res.json(resultado);
+        } catch (error) {
+            console.error('Erro no DashboardController:', error);
+            return res.status(500).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = new DashboardController();

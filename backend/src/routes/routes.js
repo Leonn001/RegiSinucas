@@ -36,5 +36,6 @@ routes.get('/mesas/:mesaId/leituras', LeituraMesaController.indexByMesa);
 
 // --- Rotas de Dashboard ---
 routes.get('/dashboard', DashboardController.index);
+routes.get('/dashboard/lucro-por-distrito', DashboardController.lucroPorDistrito);
 
 module.exports = routes;
