@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import {InputMask, useMask} from '@react-input/mask';
 import { TextField, Button, DialogActions, DialogContent, DialogTitle, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 
 function ClienteForm({ cidades, onClienteCriado, fecharModal }) {
@@ -31,6 +32,11 @@ function ClienteForm({ cidades, onClienteCriado, fecharModal }) {
         } catch (error) { }
     };
 
+    const telefoneRef = useMask({
+        mask: '(##) # ####-####',
+        replacement: { '#': /\d/ },
+    });
+
     return (
         <form onSubmit={handleSubmit}>
             <DialogTitle>Adicionar Novo Cliente</DialogTitle>
@@ -54,7 +60,8 @@ function ClienteForm({ cidades, onClienteCriado, fecharModal }) {
                     fullWidth
                     variant="standard"
                     value={telefone}
-                    onChange={e => setTelefone(e.target.value)}
+                    inputRef={telefoneRef}
+                    onChange={(e) => setTelefone(e.target.value)}
                 />
                 <FormControl fullWidth variant="standard" sx={{ mt: 2, mb: 1 }}>
                     <InputLabel id="cidade-select-label">Cidade de Residência</InputLabel>
