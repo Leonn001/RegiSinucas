@@ -30,6 +30,24 @@ class CidadeService {
         });
         return cidade;
     }
+
+    async delete(id) {
+        const cidade = await Cidade.findByPk(id);
+        if (!cidade) {
+            throw new Error('Cidade não encontrada.');
+        }
+
+        const distritosAssociados = await Distrito.count({
+            where: { cidade_id: id }
+        });
+
+        if (distritosAssociados > 0) {
+            throw new Error('Não é possível excluir cidade que possui distritos cadastrados.');
+        }
+
+        await cidade.destroy();
+        return true;
+    }
 }
 
 module.exports = new CidadeService();

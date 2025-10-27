@@ -81,8 +81,6 @@ function DashboardPage() {
 
     return (
         <Box sx={{ p: 3 }}>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>Dashboard</Typography>
-
             <Grid container spacing={3} sx={{ mb: 4 }}>
                 <Grid item xs={12} sm={6} md={3}>
                     <KpiCard title="Total de Mesas" value={kpis.totalMesas} />
@@ -93,15 +91,15 @@ function DashboardPage() {
                 <Grid item xs={12} sm={6} md={3}>
                     <KpiCard title="Mesas Inativas" value={kpis.mesasInativas} />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                {/*<Grid item xs={12} sm={6} md={3}>
                     <KpiCard title="Manutenções Pendentes" value={kpis.manutencoesPendentes} />
-                </Grid>
+                </Grid>*/}
             </Grid>
 
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
                 <FormControl sx={{ minWidth: 150 }}>
                     <InputLabel>Mês</InputLabel>
-                    <Select value={mes} label="Mês" onChange={(e) => setMes(e.target.value)}>
+                    <Select sx={{backgroundColor: '#fff' }} value={mes} label="Mês" onChange={(e) => setMes(e.target.value)}>
                         {meses.map((m) => (
                             <MenuItem key={m.valor} value={m.valor}>
                                 {m.nome.charAt(0).toUpperCase() + m.nome.slice(1)}
@@ -112,7 +110,7 @@ function DashboardPage() {
 
                 <FormControl sx={{ minWidth: 120 }}>
                     <InputLabel>Ano</InputLabel>
-                    <Select value={ano} label="Ano" onChange={(e) => setAno(e.target.value)}>
+                    <Select sx={{backgroundColor: '#fff' }} value={ano} label="Ano" onChange={(e) => setAno(e.target.value)}>
                         {anos.map((a) => (
                             <MenuItem key={a} value={a}>{a}</MenuItem>
                         ))}
@@ -121,7 +119,7 @@ function DashboardPage() {
 
                 <FormControl sx={{minWidth: 200 }}>
                     <InputLabel>Cidade</InputLabel>
-                    <Select
+                    <Select sx={{backgroundColor: '#fff' }}
                         value={cidadeSelecionada}
                         label="Cidade"
                         onChange={(e) => setCidadeSelecionada(e.target.value)}

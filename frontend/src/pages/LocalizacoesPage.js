@@ -1,8 +1,11 @@
 // src/pages/LocalizacoesPage.js
+
 import React, { useState, useEffect } from 'react';
 import {
-    Box, Button, Grid, Paper, Typography, List, ListItem, ListItemButton, ListItemText, Dialog
+    Box, Button, Grid, Paper, Typography, List, ListItem, ListItemButton, ListItemText, Dialog,
+    IconButton
 } from '@mui/material';
+import { Delete as DeleteIcon } from '@mui/icons-material';
 import api from '../services/api';
 import CidadeForm from '../components/CidadeForm';
 import DistritoForm from '../components/DistritoForm';
@@ -13,12 +16,22 @@ function LocalizacoesPage() {
     const [modalCidadeIsOpen, setModalCidadeIsOpen] = useState(false);
     const [modalDistritoIsOpen, setModalDistritoIsOpen] = useState(false);
 
-    useEffect(() => {
+    const fetchData = () => {
         api.get('/cidades').then(response => {
-            setCidades(response.data);
+            const novasCidades = response.data;
+            setCidades(novasCidades);
+
+            if (cidadeSelecionada) {
+                const cidadeAtualizada = novasCidades.find(c => c.id === cidadeSelecionada.id);
+                setCidadeSelecionada(cidadeAtualizada || null); // Reseta se a cidade foi excluída
+            }
         }).catch(error => {
             console.error("Erro ao buscar cidades:", error);
         });
+    };
+
+    useEffect(() => {
+        fetchData();
     }, []);
 
     const handleCidadeClick = (cidade) => {
@@ -27,25 +40,35 @@ function LocalizacoesPage() {
     };
 
     const handleCidadeCriada = (novaCidade) => {
-        setCidades([...cidades, novaCidade]);
         setModalCidadeIsOpen(false);
+        fetchData();
     };
 
     const handleDistritoCriado = (novoDistrito) => {
-        if (!cidadeSelecionada) return;
-
-        setCidadeSelecionada(prev => ({
-            ...prev,
-            distritos: [...(prev.distritos || []), novoDistrito]
-        }));
-
-        setCidades(prevCidades => prevCidades.map(c =>
-            c.id === cidadeSelecionada.id
-                ? { ...c, distritos: [...(c.distritos || []), novoDistrito] }
-                : c
-        ));
-
         setModalDistritoIsOpen(false);
+        fetchData();
+    };
+
+    const handleExcluirCidade = async (cidadeId, cidadeNome) => {
+        if (window.confirm(`Tem certeza que deseja excluir a cidade "${cidadeNome}"?`)) {
+            try {
+                await api.delete(`/cidades/${cidadeId}`);
+                fetchData();
+            } catch (error) {
+                alert('Erro ao excluir cidade: ' + (error.response?.data?.error || error.message));
+            }
+        }
+    };
+
+    const handleExcluirDistrito = async (distritoId, distritoNome) => {
+        if (window.confirm(`Tem certeza que deseja excluir o distrito "${distritoNome}"?`)) {
+            try {
+                await api.delete(`/distritos/${distritoId}`);
+                fetchData();
+            } catch (error) {
+                alert('Erro ao excluir distrito: ' + (error.response?.data?.error || error.message));
+            }
+        }
     };
 
     return (
@@ -64,7 +87,15 @@ function LocalizacoesPage() {
 
                         <List>
                             {cidades.map(cidade => (
-                                <ListItem key={cidade.id} disablePadding>
+                                <ListItem
+                                    key={cidade.id}
+                                    disablePadding
+                                    secondaryAction={
+                                        <IconButton edge="end" title="Excluir Cidade" onClick={() => handleExcluirCidade(cidade.id, cidade.nome)}>
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    }
+                                >
                                     <ListItemButton
                                         selected={cidadeSelecionada?.id === cidade.id}
                                         onClick={() => handleCidadeClick(cidade)}
@@ -77,18 +108,13 @@ function LocalizacoesPage() {
                     </Paper>
                 </Grid>
 
-                {/* Lista de Distritos */}
                 <Grid item xs={12} md={6}>
                     <Paper elevation={3} sx={{ padding: 2, borderRadius: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                             <Typography variant="h6">
                                 Distritos de {cidadeSelecionada ? cidadeSelecionada.nome : '...'}
                             </Typography>
-                            <Button
-                                variant="contained"
-                                onClick={() => setModalDistritoIsOpen(true)}
-                                disabled={!cidadeSelecionada}
-                            >
+                            <Button variant="contained" onClick={() => setModalDistritoIsOpen(true)} disabled={!cidadeSelecionada}>
                                 + Adicionar Distrito
                             </Button>
                         </Box>
@@ -96,7 +122,15 @@ function LocalizacoesPage() {
                         <List>
                             {cidadeSelecionada?.distritos?.length > 0 ? (
                                 cidadeSelecionada.distritos.map(distrito => (
-                                    <ListItem key={distrito.id} disablePadding>
+                                    <ListItem
+                                        key={distrito.id}
+                                        disablePadding
+                                        secondaryAction={
+                                            <IconButton edge="end" title="Excluir Distrito" onClick={() => handleExcluirDistrito(distrito.id, distrito.nome)}>
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        }
+                                    >
                                         <ListItemButton>
                                             <ListItemText primary={distrito.nome} />
                                         </ListItemButton>
@@ -116,12 +150,16 @@ function LocalizacoesPage() {
             </Grid>
 
             <Dialog open={modalCidadeIsOpen} onClose={() => setModalCidadeIsOpen(false)}>
-                <CidadeForm onCidadeCriada={handleCidadeCriada} fecharModal={() => setModalCidadeIsOpen(false)} />
+                <CidadeForm
+                    onCidadeCriada={handleCidadeCriada}
+                    fecharModal={() => setModalCidadeIsOpen(false)}
+                />
             </Dialog>
 
             <Dialog open={modalDistritoIsOpen} onClose={() => setModalDistritoIsOpen(false)}>
                 <DistritoForm
                     cidades={cidades}
+                    cidadeSelecionada={cidadeSelecionada}
                     onDistritoCriado={handleDistritoCriado}
                     fecharModal={() => setModalDistritoIsOpen(false)}
                 />

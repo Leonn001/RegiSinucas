@@ -1,6 +1,5 @@
 // src/services/DashboardService.js
 'use strict';
-const database = require('../database/index');
 const { Mesa, LeituraMesa, Cidade, Distrito, Cliente  } = require('../database/index').connection.models;
 const { QueryTypes, where, Op} = require('sequelize');
 const { fn, col } = require('sequelize');
@@ -10,7 +9,7 @@ class DashboardService {
     async getKpis() {
         const totalMesas = await Mesa.count();
         const mesasAtivas = await Mesa.count({ where: { status: 'Ativa' } });
-        const mesasInativas = await Mesa.count({ where: { status: 'Inativa - Galpão' } });
+        const mesasInativas = await Mesa.count({ where: { status: 'Inativa' } });
         const manutencoesPendentes = await Mesa.count({ where: { precisa_manutencao: true } });
 
         return { totalMesas, mesasAtivas, mesasInativas, manutencoesPendentes };

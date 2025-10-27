@@ -2,6 +2,7 @@ const { LeituraMesa, Mesa, Cliente, Distrito, Cidade } = require('../database/in
 const { parseISO } = require('date-fns');
 
 class LeituraMesaService {
+
     async create(leituraData) {
         const {
             mesa_id,
@@ -71,6 +72,35 @@ class LeituraMesaService {
         });
 
         return leituras;
+    }
+
+    async delete(id) {
+        try {
+            const leituraParaExcluir = await LeituraMesa.findByPk(id);
+            if (!leituraParaExcluir) {
+                throw new Error('Leitura não encontrada.');
+            }
+
+            const { mesa_id, contador_anterior } = leituraParaExcluir;
+
+            const mesa = await Mesa.findByPk(mesa_id);
+            if (!mesa) throw new Error('Mesa associada não encontrada.');
+
+            if (mesa.contador_ultima_leitura !== leituraParaExcluir.contador_atual_na_visita) {
+                throw new Error('Apenas a leitura mais recente pode ser excluída.');
+            }
+
+            await leituraParaExcluir.destroy();
+
+            await mesa.update({
+                contador_ultima_leitura: contador_anterior
+            });
+
+            return true;
+
+        } catch (error) {
+            throw error;
+        }
     }
 }
 

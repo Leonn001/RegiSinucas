@@ -22,15 +22,6 @@ class MesaController {
         }
     }
 
-    async devolver(req, res) {
-        try {
-            const { id } = req.params;
-            const mesa = await MesaService.devolver(id);
-            return res.json(mesa);
-        } catch (error) {
-            return res.status(404).json({ error: error.message });
-        }
-    }
     async show(req, res) {
         try {
             const { id } = req.params;
@@ -40,6 +31,47 @@ class MesaController {
             }
             return res.json(mesa);
         } catch (error) { }
+    }
+
+    async update(req, res) {
+        try {
+            const { id } = req.params;
+            const mesa = await MesaService.update(id, req.body);
+            return res.json(mesa);
+        } catch (error) {
+            if (error.message === 'Mesa não encontrada.') {
+                return res.status(404).json({ error: error.message });
+            }
+            return res.status(400).json({ error: error.message });
+        }
+    }
+
+    async delete(req, res) {
+        try {
+            const { id } = req.params;
+            await MesaService.delete(id);
+            return res.status(204).send();
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
+    async inativar(req, res) {
+        try {
+            const { id } = req.params;
+            await MesaService.inativar(id);
+
+            return res.status(200).json({ message: 'Mesa inativada e movida para o Galpão com sucesso.' });
+
+        } catch (error) {
+            if (error.message === 'Mesa não encontrada.' || error.message === 'Esta mesa já está inativa.') {
+                return res.status(404).json({ error: error.message });
+            }
+            if (error.message.includes('Galpão não encontrado')) {
+                return res.status(400).json({ error: error.message });
+            }
+            return res.status(500).json({ error: 'Erro interno ao inativar a mesa: ' + error.message });
+        }
     }
 }
 

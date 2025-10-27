@@ -1,4 +1,4 @@
-const { Cliente, Distrito, Cidade } = require('../database/index').connection.models;
+const { Cliente, Distrito, Cidade, Mesa } = require('../database/index').connection.models;
 
 class ClienteService {
     async create(clienteData) {
@@ -27,7 +27,7 @@ class ClienteService {
             include: [{
                 model: Distrito,
                 as: 'distrito',
-                attributes: ['id', 'nome'],
+                attributes: ['id', 'nome', 'cidade_id'],
                 include: [{
                     model: Cidade,
                     as: 'cidade',
@@ -36,6 +36,37 @@ class ClienteService {
             }]
         });
         return cliente;
+    }
+
+    async update(id, clienteData) {
+        const cliente = await Cliente.findByPk(id);
+
+        if (!cliente) {
+            throw new Error('Cliente não encontrado.');
+        }
+
+        await cliente.update(clienteData);
+
+        return this.findById(id);
+    }
+
+    async delete(id) {
+        const cliente = await Cliente.findByPk(id);
+
+        if (!cliente) {
+            throw new Error('Cliente não encontrado.');
+        }
+
+        const mesasAssociadas = await Mesa.count({
+            where: { cliente_id: id }
+        });
+
+        if (mesasAssociadas > 0) {
+            throw new Error('Não é possível excluir cliente que possui mesas ativas.');
+        }
+
+        await cliente.destroy();
+        return true;
     }
 }
 

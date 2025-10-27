@@ -25,5 +25,14 @@ class CidadeController {
             return res.json(cidade);
         } catch (error) { }
     }
+    async delete(req, res) {
+        try {
+            const { id } = req.params;
+            await CidadeService.delete(id);
+            return res.status(204).send();
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
+    }
 }
 module.exports = new CidadeController();

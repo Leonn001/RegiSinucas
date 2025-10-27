@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { format, parseISO } from 'date-fns';
-import { Box, Button, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, TextField } from '@mui/material';
+import { Box, Button, Paper, Typography, Table, TableBody, TableCell,
+    TableContainer, TableHead, TableRow, Grid, TextField, IconButton } from '@mui/material';
+import { Delete as DeleteIcon } from '@mui/icons-material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const getTodayDateString = () => {
@@ -78,9 +80,25 @@ function MesaDetailPage() {
         }
     };
 
+    const handleExcluirLeitura = async (leituraId) => {
+        const confirmMsg = "Tem certeza que deseja excluir esta leitura?\n\n(Aviso: Só é possível excluir a leitura mais recente.)";
+
+        if (window.confirm(confirmMsg)) {
+            try {
+                await api.delete(`/leituras/${leituraId}`);
+                alert('Leitura excluída com sucesso!');
+                fetchData();
+            } catch (error) {
+                alert('Erro ao excluir leitura: ' + (error.response?.data?.error || error.message));
+            }
+        }
+    };
+
     if (!mesa) {
         return <Typography variant="h5" align="center" sx={{ mt: 5 }}>Carregando...</Typography>;
     }
+
+    console.log(historico)
 
     const cliente = clientes.find(c => c.id === mesa.cliente_id);
     const distrito = distritos.find(d => d.id === mesa.distrito_id);
@@ -142,9 +160,11 @@ function MesaDetailPage() {
                                 <TableCell>Cont. Atual</TableCell>
                                 <TableCell>Fichas Brutas</TableCell>
                                 <TableCell>Desc. Fichas</TableCell>
+                                <TableCell>Fichas</TableCell>
                                 <TableCell>Valor Cobrado</TableCell>
                                 <TableCell>Valor Pago</TableCell>
                                 <TableCell>Dívida Restante</TableCell>
+                                <TableCell align="right">Ações</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -155,10 +175,16 @@ function MesaDetailPage() {
                                     <TableCell>{leitura.contador_atual_na_visita}</TableCell>
                                     <TableCell>{leitura.fichas_brutas}</TableCell>
                                     <TableCell>{leitura.desconto_fichas}</TableCell>
+                                    <TableCell>{leitura.fichas_brutas - leitura.desconto_fichas}</TableCell>
                                     <TableCell>R$ {parseFloat(leitura.valor_cobrado).toFixed(2)}</TableCell>
                                     <TableCell>R$ {parseFloat(leitura.valor_pago).toFixed(2)}</TableCell>
                                     <TableCell sx={{ color: parseFloat(leitura.divida_restante) > 0 ? 'error.main' : 'success.main', fontWeight: 'bold' }}>
                                         R$ {parseFloat(leitura.divida_restante).toFixed(2)}
+                                    </TableCell>
+                                    <TableCell align="right">
+                                        <IconButton size="small" onClick={() => handleExcluirLeitura(leitura.id)} title="Excluir Leitura">
+                                            <DeleteIcon />
+                                        </IconButton>
                                     </TableCell>
                                 </TableRow>
                             ))}

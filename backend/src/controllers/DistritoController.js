@@ -43,6 +43,16 @@ class DistritoController {
             return res.status(500).json({ error: 'Erro ao buscar distritos da cidade.' });
         }
     }
+
+    async delete(req, res) {
+        try {
+            const { id } = req.params;
+            await DistritoService.delete(id);
+            return res.status(204).send();
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = new DistritoController();

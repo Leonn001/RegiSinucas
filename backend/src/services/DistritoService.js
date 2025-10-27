@@ -1,4 +1,4 @@
-const { Distrito, Cidade } = require('../database/index').connection.models;
+const { Distrito, Cidade,Cliente, Mesa } = require('../database/index').connection.models;
 
 class DistritoService {
     async create(distritoData) {
@@ -32,6 +32,32 @@ class DistritoService {
             ]
         });
         return distritos;
+    }
+
+    async delete(id) {
+        const distrito = await Distrito.findByPk(id);
+        if (!distrito) {
+            throw new Error('Distrito não encontrado.');
+        }
+
+        const clientesAssociados = await Cliente.count({
+            where: { distrito_id: id }
+        });
+
+        if (clientesAssociados > 0) {
+            throw new Error('Não é possível excluir distrito. Existem clientes associados a ele.');
+        }
+
+        const mesasAssociadas = await Mesa.count({
+            where: { distrito_id: id }
+        });
+
+        if (mesasAssociadas > 0) {
+            throw new Error('Não é possível excluir distrito. Existem mesas associadas a ele.');
+        }
+
+        await distrito.destroy();
+        return true;
     }
 }
 
