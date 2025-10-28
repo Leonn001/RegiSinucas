@@ -1,13 +1,14 @@
 const Sequelize = require('sequelize');
 const dbConfig = require('../config/database');
 
+const Usuario = require('../models/Usuario');
 const Cliente = require('../models/cliente');
 const Mesa = require('../models/mesa');
 const LeituraMesa = require('../models/leituramesa');
 const Cidade = require('../models/cidade');
 const Distrito = require('../models/distrito');
 
-const models = [Cliente, Mesa, LeituraMesa, Cidade, Distrito];
+const models = [Cliente, Mesa, LeituraMesa, Cidade, Distrito,Usuario];
 
 class Database {
     constructor() {

@@ -1,12 +1,13 @@
-// src/pages/ClientesPage.js
-
 import React, { useState, useEffect } from 'react';
 import {
     Box, Button, Paper, Typography, Dialog, Table, TableBody, TableCell,
-    TableContainer, TableHead, TableRow ,TextField, Select, MenuItem, FormControl, InputLabel,
-    IconButton
+    TableContainer, TableHead, TableRow, TextField, Select, MenuItem, FormControl, InputLabel,
+    IconButton, InputAdornment
 } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import {
+    Edit as EditIcon, Delete as DeleteIcon,
+    Search as SearchIcon
+} from '@mui/icons-material';
 import api from '../services/api';
 import ClienteForm from '../components/ClienteForm';
 
@@ -16,7 +17,6 @@ function ClientesPage() {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [filtro, setFiltro] = useState('');
     const [cidadeFiltro, setCidadeFiltro] = useState('');
-
     const [clienteEmEdicao, setClienteEmEdicao] = useState(null);
 
     const fetchData = () => {
@@ -55,7 +55,6 @@ function ClientesPage() {
     };
 
     const clientesFiltrados = clientes.filter(cliente => {
-
         const matchTexto =
             cliente.nome.toLowerCase().includes(filtro.toLowerCase()) ||
             cliente.telefone.includes(filtro);
@@ -76,29 +75,43 @@ function ClientesPage() {
                 <Button variant="contained" onClick={() => handleAbrirModal(null)}>+ Adicionar Cliente</Button>
             </Box>
 
-            <Box sx={{ display: 'flex', gap: 2, mb: 2}}>
-                <TextField
-                    label="Buscar por nome ou telefone"
-                    variant="outlined"
-                    size="small"
-                    value={filtro}
-                    onChange={(e) => setFiltro(e.target.value)}
-                    sx={{ flex: 1, backgroundColor: '#fff' }}
-                />
-                <FormControl size="small" sx={{ minWidth: 180}}>
-                    <InputLabel>Cidade</InputLabel>
-                    <Select sx={{ backgroundColor: '#fff' }}
-                            value={cidadeFiltro}
-                            label="Cidade"
-                            onChange={(e) => setCidadeFiltro(e.target.value)}
-                    >
-                        <MenuItem value="">Todas</MenuItem>
-                        {cidades.map((cidade) => (
-                            <MenuItem key={cidade.id} value={cidade.id}>{cidade.nome}</MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            </Box>
+            <Paper variant="outlined" sx={{ padding: 2, alignItems: 'center', mb: 2, backgroundColor: '#fff' }}>
+
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+                    Filtros e Pesquisa
+                </Typography>
+
+                <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                    <TextField
+                        placeholder="Buscar por nome ou telefone"
+                        variant="outlined"
+                        size="small"
+                        value={filtro}
+                        onChange={(e) => setFiltro(e.target.value)}
+                        sx={{ flex: 1, backgroundColor: '#fff' }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon color="action" />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <FormControl size="small" sx={{ minWidth: 180 }}>
+                        <InputLabel>Cidade</InputLabel>
+                        <Select sx={{ backgroundColor: '#fff' }}
+                                value={cidadeFiltro}
+                                label="Cidade"
+                                onChange={(e) => setCidadeFiltro(e.target.value)}
+                        >
+                            <MenuItem value="">Todas</MenuItem>
+                            {cidades.map((cidade) => (
+                                <MenuItem key={cidade.id} value={cidade.id}>{cidade.nome}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Box>
+            </Paper>
 
             <Paper elevation={3} sx={{ borderRadius: 2 }}>
                 <TableContainer>
@@ -117,7 +130,7 @@ function ClientesPage() {
                                     <TableCell>{cliente.nome}</TableCell>
                                     <TableCell>{cliente.telefone}</TableCell>
                                     <TableCell>
-                                        {cliente.distrito ? `${cliente.distrito.nome} - ${cliente.distrito.cidade.nome}` : 'Não informado'}
+                                        {cliente.distrito ? `${cliente.distrito.cidade.nome} - ${cliente.distrito.nome}` : 'Não informado'}
                                     </TableCell>
                                     <TableCell align="right">
                                         <IconButton size="small" onClick={() => handleAbrirModal(cliente)} title="Editar">

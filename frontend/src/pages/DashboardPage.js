@@ -9,11 +9,18 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,Legend, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 
-function KpiCard({ title, value }) {
+function KpiCard({ title, value, backgroundColor }) {
     return (
-        <Paper elevation={3} sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
-            <Typography variant="h6" color="textSecondary">{title}</Typography>
-            <Typography variant="h4" sx={{ fontWeight: 'bold' }}>{value}</Typography>
+        <Paper elevation={3} sx={{ p: 2, textAlign: 'center', borderRadius: 2,backgroundColor: backgroundColor || '#fff'  }}>
+            <Typography variant="h6" color="textSecondary">
+                {title}
+            </Typography>
+            <Typography
+                variant="h4"
+                sx={{ fontWeight: 'bold'}}
+            >
+                {value}
+            </Typography>
         </Paper>
     );
 }
@@ -32,7 +39,7 @@ function DashboardPage() {
         valor: i + 1,
     }));
     const anoAtual = new Date().getFullYear();
-    const anos = Array.from({ length: 6 }, (_, i) => anoAtual - 4 + i);
+    const anos = Array.from({ length: 12 }, (_, i) => anoAtual - 5 + i);
 
     const carregarDashboard = async () => {
         try {
@@ -77,11 +84,18 @@ function DashboardPage() {
 
     const { kpis, lucroPorCidade } = dashboardData;
 
+    const lucroTotal = lucroPorCidade.reduce((acc, cidade) => acc + cidade.Lucro, 0);
+
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF1943']
+
 
     return (
         <Box sx={{ p: 3 }}>
             <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid item xs={12} sm={6} md={3}>
+                    <KpiCard title="Lucro Total do Período" value={`R$ ${lucroTotal.toFixed(2)}`} backgroundColor='#BBFCA4'
+                    />
+                </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                     <KpiCard title="Total de Mesas" value={kpis.totalMesas} />
                 </Grid>
@@ -89,7 +103,7 @@ function DashboardPage() {
                     <KpiCard title="Mesas Ativas" value={kpis.mesasAtivas} />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
-                    <KpiCard title="Mesas Inativas" value={kpis.mesasInativas} />
+                    <KpiCard title="Mesas Inativas" value={kpis.mesasInativas} backgroundColor={'#FFFCAD'} />
                 </Grid>
                 {/*<Grid item xs={12} sm={6} md={3}>
                     <KpiCard title="Manutenções Pendentes" value={kpis.manutencoesPendentes} />

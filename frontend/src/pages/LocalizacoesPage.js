@@ -73,15 +73,16 @@ function LocalizacoesPage() {
 
     return (
         <Box sx={{ padding: 3, fontFamily: 'Roboto, sans-serif' }}>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
-                Gestão de Localizações
-            </Typography>
-
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+                    Gestão de Localizações
+                </Typography>
+            </Box>
             <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
                     <Paper elevation={3} sx={{ padding: 2, borderRadius: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                            <Typography variant="h6">Cidades</Typography>
+                            <Typography sx={{ mr: 2 }} variant="h6">Cidades</Typography>
                             <Button variant="contained" onClick={() => setModalCidadeIsOpen(true)}>+ Adicionar Cidade</Button>
                         </Box>
 
@@ -111,7 +112,7 @@ function LocalizacoesPage() {
                 <Grid item xs={12} md={6}>
                     <Paper elevation={3} sx={{ padding: 2, borderRadius: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                            <Typography variant="h6">
+                            <Typography sx={{ mr: 2 }} variant="h6">
                                 Distritos de {cidadeSelecionada ? cidadeSelecionada.nome : '...'}
                             </Typography>
                             <Button variant="contained" onClick={() => setModalDistritoIsOpen(true)} disabled={!cidadeSelecionada}>

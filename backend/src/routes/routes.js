@@ -1,12 +1,25 @@
 const { Router } = require('express');
+const authMiddleware = require('../middlewares/auth');
 const MesaController = require('../controllers/MesaController');
 const CidadeController = require('../controllers/CidadeController');
 const DistritoController = require('../controllers/DistritoController');
 const ClienteController = require('../controllers/ClienteController');
 const LeituraMesaController = require('../controllers/LeituraMesaController');
 const DashboardController = require('../controllers/DashboardController');
+const UsuarioController = require('../controllers/UsuarioController');
+const SessionController = require('../controllers/SessionController');
 
 const routes = new Router();
+
+// --- ROTAS PÚBLICAS ---
+routes.post('/usuarios', UsuarioController.store);
+routes.post('/sessions', SessionController.store);
+
+
+// --- Todas abaixo vão exigir um token ---
+routes.use(authMiddleware);
+
+// --- ROTAS PROTEGIDAS ---
 
 // --- Rotas de Mesa ---
 routes.get('/mesas', MesaController.index);

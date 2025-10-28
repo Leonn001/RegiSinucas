@@ -1,14 +1,15 @@
-// src/pages/MesasPage.js
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import MesaForm from '../components/MesaForm';
 import {
     Box, Button, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Dialog,
-    TextField, Select, MenuItem, FormControl, InputLabel, IconButton
+    TextField, Select, MenuItem, FormControl, InputLabel, IconButton, InputAdornment
 } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon, Archive as ArchiveIcon } from '@mui/icons-material';
+import {
+    Edit as EditIcon, Delete as DeleteIcon, Archive as ArchiveIcon,
+    Search as SearchIcon
+} from '@mui/icons-material';
 
 const ordenarPorNumeroSerie = (a, b) => {
     const numA = parseInt(a.numero_serie.split('-')[1], 10);
@@ -80,7 +81,6 @@ function MesasPage() {
     };
 
     const mesasFiltradas = mesas.filter(mesas => {
-
         const matchTexto =
             mesas.numero_serie.toLowerCase().includes(filtro.toLowerCase()) ||
             mesas.nome_ponto_comercial.toLowerCase().includes(filtro.toLowerCase()) ||
@@ -106,44 +106,57 @@ function MesasPage() {
                 <Button variant="contained" onClick={() => setModalIsOpen(true)}>+ Adicionar Mesa</Button>
             </Box>
 
-            <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                <TextField
-                    label="Buscar por N° Série, Ponto ou Cliente"
-                    variant="outlined"
-                    size="small"
-                    value={filtro}
-                    onChange={(e) => setFiltro(e.target.value)}
-                    sx={{ flex: 1,backgroundColor: '#fff' }}
-                />
+            <Paper variant="outlined" sx={{ padding: 2, alignItems: 'center', mb: 2, backgroundColor: '#fff' }}>
 
-                <FormControl size="small" sx={{ minWidth: 180}}>
-                    <InputLabel>Cidade</InputLabel>
-                    <Select sx={{backgroundColor: '#fff' }}
-                        value={cidadeFiltro}
-                        label="Cidade"
-                        onChange={(e) => setCidadeFiltro(e.target.value)}
-                    >
-                        <MenuItem value="">Todas</MenuItem>
-                        {cidades.map((cidade) => (
-                            <MenuItem key={cidade.id} value={cidade.id}>{cidade.nome}</MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+                    Filtros e Pesquisa
+                </Typography>
 
-                <FormControl size="small" sx={{ minWidth: 180}}>
-                    <InputLabel>Status</InputLabel>
-                    <Select sx={{backgroundColor: '#fff' }}
-                        value={statusFiltro}
-                        label="Status"
-                        onChange={(e) => setStatusFiltro(e.target.value)}
-                    >
-                        <MenuItem value="">Todos</MenuItem>
-                        <MenuItem value="Ativa">Ativa</MenuItem>
-                        <MenuItem value="Inativa">Inativa</MenuItem>
-                    </Select>
-                </FormControl>
-            </Box>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                    <TextField
+                        placeholder="Buscar por N° Série, Ponto ou Cliente"
+                        variant="outlined"
+                        size="small"
+                        value={filtro}
+                        onChange={(e) => setFiltro(e.target.value)}
+                        sx={{ flex: 1, backgroundColor: '#fff' }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon color="action" />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
 
+                    <FormControl size="small" sx={{ minWidth: 180 }}>
+                        <InputLabel>Cidade</InputLabel>
+                        <Select sx={{ backgroundColor: '#fff' }}
+                                value={cidadeFiltro}
+                                label="Cidade"
+                                onChange={(e) => setCidadeFiltro(e.target.value)}
+                        >
+                            <MenuItem value="">Todas</MenuItem>
+                            {cidades.map((cidade) => (
+                                <MenuItem key={cidade.id} value={cidade.id}>{cidade.nome}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl size="small" sx={{ minWidth: 180 }}>
+                        <InputLabel>Status</InputLabel>
+                        <Select sx={{ backgroundColor: '#fff' }}
+                                value={statusFiltro}
+                                label="Status"
+                                onChange={(e) => setStatusFiltro(e.target.value)}
+                        >
+                            <MenuItem value="">Todos</MenuItem>
+                            <MenuItem value="Ativa">Ativa</MenuItem>
+                            <MenuItem value="Inativa">Inativa</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Box>
+            </Paper>
             <Paper elevation={3} sx={{ borderRadius: 2 }}>
                 <TableContainer>
                     <Table>
@@ -164,10 +177,30 @@ function MesasPage() {
                                     <TableCell sx={{ cursor: 'pointer' }} onClick={() => navigate(`/mesas/${mesa.id}`)}>{mesa.nome_ponto_comercial ?? 'N/A'}</TableCell>
                                     <TableCell sx={{ cursor: 'pointer' }} onClick={() => navigate(`/mesas/${mesa.id}`)}>{mesa.cliente?.nome ?? 'N/A'}</TableCell>
                                     <TableCell sx={{ cursor: 'pointer' }} onClick={() => navigate(`/mesas/${mesa.id}`)}>
-                                        {mesa.distrito ? `${mesa.distrito.nome} - ${mesa.distrito.cidade.nome}` : 'N/A'}
+                                        {mesa.distrito ? `${mesa.distrito.cidade.nome} - ${mesa.distrito.nome}` : 'N/A'}
                                     </TableCell>
-                                    <TableCell sx={{ cursor: 'pointer' }} onClick={() => navigate(`/mesas/${mesa.id}`)}>{mesa.status}</TableCell>
+                                    <TableCell sx={{ cursor: 'pointer' }} onClick={() => navigate(`/mesas/${mesa.id}`)}>
+                                        <Box
+                                            sx={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                padding: '2px 12px',
+                                                borderRadius: '16px',
+                                                fontWeight: 'bold',
+                                                fontSize: '0.8rem',
+                                                backgroundColor: mesa.status === 'Ativa'
+                                                    ? '#BBFCA4'
+                                                    : '#FFFCAD',
 
+                                                color: mesa.status === 'Ativa'
+                                                    ? '#0A5C0A'
+                                                    : '#6F6C0A',
+                                            }}
+                                        >
+                                            {mesa.status}
+                                        </Box>
+                                    </TableCell>
                                     <TableCell align="right">
                                         <IconButton size="small" onClick={() => handleAbrirModal(mesa)} title="Editar">
                                             <EditIcon />
